@@ -7,14 +7,31 @@ on:
 jobs:
   scan:
     runs-on: ubuntu-latest
+
     steps:
+      # -----------------------------
+      # 1. Checkout full git history
+      # -----------------------------
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # <-- full git history
+          fetch-depth: 0   # fetch all commits
 
-      - name: TruffleHog Scan
+      # -----------------------------
+      # 2. Run TruffleHog scan
+      # -----------------------------
+      - name: Run TruffleHog
+        id: trufflehog
         uses: trufflesecurity/trufflehog@main
         with:
-          path: .
-          scan-type: git    # <-- optional, default is git
+          path: .          # scan current repo
+          extra_args: --json  # output as JSON
+
+      # -----------------------------
+      # 3. Save findings as artifact
+      # -----------------------------
+      - name: Upload TruffleHog Findings
+        uses: actions/upload-artifact@v3
+        with:
+          name: trufflehog-findings
+          path: trufflehog.json
