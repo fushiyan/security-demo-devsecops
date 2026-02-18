@@ -11,10 +11,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-           fetch-depth: 1
+          fetch-depth: 0   # <-- full git history
 
       - name: TruffleHog Scan
         uses: trufflesecurity/trufflehog@main
         with:
           path: .
-
+          scan-type: git    # <-- optional, default is git
