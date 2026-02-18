@@ -15,20 +15,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # fetch all commits
+          fetch-depth: 0
 
       # -----------------------------
-      # 2. Run TruffleHog scan
+      # 2. Install TruffleHog CLI
+      # -----------------------------
+      - name: Install TruffleHog
+        run: pip install trufflehog
+
+      # -----------------------------
+      # 3. Run TruffleHog and save JSON output
       # -----------------------------
       - name: Run TruffleHog
-        id: trufflehog
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: .          
-          extra_args: --json  # output as JSON
+        run: |
+          trufflehog git . --json | tee trufflehog.json
 
       # -----------------------------
-      # 3. Convert JSON to YAML
+      # 4. Convert JSON to YAML
       # -----------------------------
       - name: Convert JSON to YAML
         run: |
@@ -36,10 +39,10 @@ jobs:
           python -c "import json, yaml; f=[json.loads(line) for line in open('trufflehog.json')]; yaml.safe_dump(f, open('trufflehog.yaml', 'w'))"
 
       # -----------------------------
-      # 4. Upload YAML Findings
+      # 5. Upload YAML Findings
       # -----------------------------
       - name: Upload YAML Findings
-        uses: actions/upload-artifact@v4   # <-- updated version
+        uses: actions/upload-artifact@v4
         with:
           name: trufflehog-findings-yaml
           path: trufflehog.yaml
