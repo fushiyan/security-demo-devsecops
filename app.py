@@ -4,7 +4,7 @@ from flask import Flask, request
 app = Flask(__name__)
 
 # ❌ Hardcoded secret (for TruffleHog)
-API_KEY = "sk_test_1234567890SECRETKEY"
+API_KEY = "sk_test_1234567890SECRETKEY" #api key exposed
 
 @app.route("/user")
 def get_user():
