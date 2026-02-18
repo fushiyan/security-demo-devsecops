@@ -1,0 +1,11 @@
+name: Secret Scan
+
+on:
+  push:
+
+jobs:
+  trufflehog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: trufflesecurity/trufflehog@v3
