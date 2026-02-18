@@ -5,6 +5,7 @@ app = Flask(__name__)
 
 # ❌ Hardcoded secret (for TruffleHog)
 API_KEY = "sk_test_1234567890SECRETKEY" #api key exposed
+PASSWORD = "123"
 
 @app.route("/user")
 def get_user():
