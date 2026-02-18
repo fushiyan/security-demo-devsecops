@@ -15,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # full history needed for git scanning
+          fetch-depth: 0
 
       # -----------------------------
       # 2. Install TruffleHog
@@ -24,7 +24,7 @@ jobs:
         run: pip install trufflehog pyyaml
 
       # -----------------------------
-      # 3. Optional: Add test secrets (for demonstration only)
+      # 3. Optional: Add test secrets
       # -----------------------------
       - name: Add test secrets
         run: |
@@ -33,7 +33,7 @@ API_KEY = "sk_test_1234567890SECRETKEY"
 PASSWORD = "123"' >> app.py
 
       # -----------------------------
-      # 4. Run TruffleHog (git + filesystem)
+      # 4. Run TruffleHog scans
       # -----------------------------
       - name: Run TruffleHog Git Scan
         run: trufflehog git . --json | tee trufflehog_git.json
@@ -42,32 +42,11 @@ PASSWORD = "123"' >> app.py
         run: trufflehog filesystem . --json | tee trufflehog_fs.json
 
       # -----------------------------
-      # 5. Combine JSON and convert to YAML
+      # 5. Combine JSON & convert to YAML
       # -----------------------------
-      - name: Combine and convert to YAML
+      - name: Combine JSON and convert to YAML
         run: |
-          python - <<EOF
-import json, yaml
-
-# Load git findings
-with open("trufflehog_git.json") as f:
-    git_findings = [json.loads(line) for line in f if line.strip()]
-
-# Load filesystem findings
-with open("trufflehog_fs.json") as f:
-    fs_findings = [json.loads(line) for line in f if line.strip()]
-
-# Combine
-all_findings = git_findings + fs_findings
-
-# Save combined JSON
-with open("trufflehog_combined.json", "w") as f:
-    json.dump(all_findings, f, indent=2)
-
-# Save YAML
-with open("trufflehog_combined.yaml", "w") as f:
-    yaml.safe_dump(all_findings, f)
-EOF
+          python -c "import json, yaml; f=[json.loads(line) for line in open('trufflehog_git.json') if line.strip()]; g=[json.loads(line) for line in open('trufflehog_fs.json') if line.strip()]; all_findings=f+g; json.dump(all_findings, open('trufflehog_combined.json','w'), indent=2); yaml.safe_dump(all_findings, open('trufflehog_combined.yaml','w'))"
 
       # -----------------------------
       # 6. Upload artifacts
