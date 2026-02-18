@@ -24,14 +24,22 @@ jobs:
         id: trufflehog
         uses: trufflesecurity/trufflehog@main
         with:
-          path: .          # scan current repo
+          path: .          
           extra_args: --json  # output as JSON
 
       # -----------------------------
-      # 3. Save findings as artifact
+      # 3. Convert JSON to YAML
       # -----------------------------
-      - name: Upload TruffleHog Findings
-        uses: actions/upload-artifact@v3
+      - name: Convert JSON to YAML
+        run: |
+          pip install pyyaml
+          python -c "import json, yaml; f=[json.loads(line) for line in open('trufflehog.json')]; yaml.safe_dump(f, open('trufflehog.yaml', 'w'))"
+
+      # -----------------------------
+      # 4. Upload YAML Findings
+      # -----------------------------
+      - name: Upload YAML Findings
+        uses: actions/upload-artifact@v4   # <-- updated version
         with:
-          name: trufflehog-findings
-          path: trufflehog.json
+          name: trufflehog-findings-yaml
+          path: trufflehog.yaml
